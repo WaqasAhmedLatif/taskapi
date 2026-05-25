@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Private Logs
+CHANGELOG_PRIVATE.md
+RAW_THINKING.md
