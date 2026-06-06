@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "taskapi",
+  "project_id": "ad4785f4-c108-4bc1-9048-3a3fa81e2300"
+}
