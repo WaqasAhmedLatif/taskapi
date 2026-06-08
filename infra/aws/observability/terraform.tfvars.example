@@ -1,0 +1,14 @@
+project_name = "taskapi"
+environment  = "dev"
+aws_region   = "us-east-1"
+
+enable_prometheus_logging = true
+prometheus_log_retention_days = 30
+
+# Enable only after AWS Identity Center or another supported AMG auth provider
+# is ready in the target account.
+enable_managed_grafana = false
+
+tags = {
+  Owner = "platform"
+}

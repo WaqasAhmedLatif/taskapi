@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: taskapi
+  labels:
+    app.kubernetes.io/name: taskapi
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: taskapi
+    release: kube-prometheus-stack
+spec:
+  jobLabel: app.kubernetes.io/name
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: taskapi
+      app.kubernetes.io/component: api
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+      scrapeTimeout: 5s
+      honorLabels: true

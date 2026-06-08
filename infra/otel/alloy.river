@@ -1,0 +1,30 @@
+otelcol.receiver.otlp "taskapi" {
+	grpc {
+		endpoint = "0.0.0.0:4317"
+	}
+
+	http {
+		endpoint = "0.0.0.0:4318"
+	}
+
+	output {
+		traces = [otelcol.processor.batch.taskapi.input]
+		logs   = [otelcol.processor.batch.taskapi.input]
+	}
+}
+
+otelcol.processor.batch "taskapi" {
+	output {
+		traces = [otelcol.exporter.otlphttp.grafana_cloud.input]
+		logs   = [otelcol.exporter.otlphttp.grafana_cloud.input]
+	}
+}
+
+otelcol.exporter.otlphttp "grafana_cloud" {
+	client {
+		endpoint = sys.env("GRAFANA_CLOUD_OTLP_ENDPOINT")
+		headers  = {
+			"Authorization" = "Basic " + sys.env("GRAFANA_CLOUD_OTLP_BASIC_AUTH"),
+		}
+	}
+}

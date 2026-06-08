@@ -1,0 +1,7 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - taskapi-service.yaml
+  - taskapi-servicemonitor.yaml
+  - taskapi-prometheusrules.yaml

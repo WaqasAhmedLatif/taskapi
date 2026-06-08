@@ -1,0 +1,80 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: taskapi
+  labels:
+    app.kubernetes.io/name: taskapi
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: taskapi
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: taskapi.availability
+      rules:
+        - alert: TaskAPITargetDown
+          expr: up{job="taskapi"} == 0
+          for: 2m
+          labels:
+            severity: critical
+            service: taskapi
+          annotations:
+            summary: TaskAPI Prometheus target is down
+            description: Prometheus cannot scrape TaskAPI /metrics for more than 2 minutes.
+
+        - alert: TaskAPIMetricsAbsent
+          expr: absent(up{job="taskapi"})
+          for: 5m
+          labels:
+            severity: warning
+            service: taskapi
+          annotations:
+            summary: TaskAPI metrics are absent
+            description: No TaskAPI scrape target is visible. Check ServiceMonitor labels, namespace selectors, and pod labels.
+
+    - name: taskapi.http
+      rules:
+        - alert: TaskAPIHighErrorRate
+          expr: |
+            (
+              sum(rate(http_requests_total{job="taskapi",status=~"5..|5xx"}[5m]))
+              /
+              clamp_min(sum(rate(http_requests_total{job="taskapi"}[5m])), 1)
+            ) > 0.05
+          for: 10m
+          labels:
+            severity: warning
+            service: taskapi
+          annotations:
+            summary: TaskAPI 5xx error rate is high
+            description: More than 5% of TaskAPI requests are 5xx responses over 10 minutes.
+
+        - alert: TaskAPIHighLatency
+          expr: |
+            histogram_quantile(
+              0.95,
+              sum by (le) (
+                rate(http_request_duration_seconds_bucket{job="taskapi"}[5m])
+              )
+            ) > 1
+          for: 10m
+          labels:
+            severity: warning
+            service: taskapi
+          annotations:
+            summary: TaskAPI p95 latency is high
+            description: TaskAPI p95 request latency is above 1 second for 10 minutes.
+
+    - name: taskapi.pods
+      rules:
+        - alert: TaskAPIPodRestarting
+          expr: |
+            sum by (namespace, pod) (
+              increase(kube_pod_container_status_restarts_total{pod=~"taskapi.*"}[15m])
+            ) > 0
+          for: 5m
+          labels:
+            severity: warning
+            service: taskapi
+          annotations:
+            summary: TaskAPI pod restarted
+            description: TaskAPI pod {{ $labels.namespace }}/{{ $labels.pod }} restarted in the last 15 minutes.

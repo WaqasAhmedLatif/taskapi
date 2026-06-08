@@ -1,0 +1,22 @@
+# Copy this block into your local Codex config only.
+# Do not commit real tokens.
+
+[mcp_servers.taskapi_grafana_readonly]
+command = "docker"
+args = [
+  "run",
+  "--rm",
+  "-i",
+  "-e",
+  "GRAFANA_URL=http://host.docker.internal:3001",
+  "-e",
+  "GRAFANA_SERVICE_ACCOUNT_TOKEN",
+  "grafana/mcp-grafana:latest",
+  "-t",
+  "stdio",
+  "-disable-write",
+  "-disable-admin",
+  "-enabled-tools",
+  "search,datasource,alerting,dashboard,prometheus",
+]
+env = { GRAFANA_SERVICE_ACCOUNT_TOKEN = "<set-in-shell-or-secret-store>" }
